@@ -16,19 +16,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = "Error de conexión: " . $conn->connect_error;
         
         // Redirigimos de vuelta al formulario con el mensaje de error
-        header("Location: index.html?error=" . urlencode($error_message));
+        // header("Location: index.html?error=" . urlencode($error_message));
+        echo "Conexión exitosa ", $dbname;
         exit();
     } else {
         // Cerramos la conexión
         $conn->close();
         
         // Redirige al usuario a la página de catálogos
-        header("Location: iplanner-catalogos.html");
+        // header("Location: iplanner-catalogos.html");
+        echo "Conexión exitosa ", $dbname;
         exit();
     }
 } else {
     // Si no es una solicitud POST, redirigir al index
-    header("Location: index.html?error=" . urlencode("Método no permitido"));
+    // header("Location: index.html?error=" . urlencode("Método no permitido"));
+    echo "Conexión exitosa ", $dbname;
     exit();
 }
 ?>
