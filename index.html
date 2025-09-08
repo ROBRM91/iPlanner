@@ -10,16 +10,29 @@
     <link rel="manifest" href="manifest.json">
     <script src="register.js"></script>
     
+    <style>
+        .error-message {
+            color: #e74c3c;
+            background-color: #fadbd8;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Conectar a MySQL</h1>
+        
+        <div id="error-message" class="error-message"></div>
+        
         <form action="connect.php" method="POST">
             <label for="server_name">Nombre Servidor:</label>
             <input type="text" id="server_name" name="server_name" required>
             
             <label for="server_port">Puerto:</label>
-            <input type="text" id="server_port" name="server_port" required>
+            <input type="text" id="server_port" name="server_port" required value="3306">
 
             <label for="user_name">Nombre Usuario:</label>
             <input type="text" id="user_name" name="user_name" required>
@@ -33,5 +46,19 @@
             <button type="submit">CONECTAR</button>
         </form>
     </div>
+
+    <script>
+        // Mostrar mensaje de error si existe en la URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            
+            if (error) {
+                const errorElement = document.getElementById('error-message');
+                errorElement.textContent = decodeURIComponent(error);
+                errorElement.style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>

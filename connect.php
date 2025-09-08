@@ -11,11 +11,18 @@ $conn = new mysqli($servername, $username, $password, $dbname, $serverport);
 
 // Verifica si la conexión fue exitosa
 if ($conn->connect_error) {
-    die("❌ ¡Error de conexión!: " . $conn->connect_error);
+    // Preparamos un mensaje de error para mostrar en la página de login
+    $error_message = "Error de conexión: " . $conn->connect_error;
+    
+    // Redirigimos de vuelta al formulario con el mensaje de error
+    header("Location: index.html?error=" . urlencode($error_message));
+    exit();
 } else {
+    // Cerramos la conexión
+    $conn->close();
+    
     // Redirige al usuario a la página de catálogos
-    // header("Location: iplanner-catalogos.html");
-    echo "✅ ¡Conexión exitosa a la base de datos **" . $dbname . "**!";
-    exit(); // Es importante usar exit() después de una redirección
+    header("Location: iplanner-catalogos.html");
+    exit();
 }
 ?>
