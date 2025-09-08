@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conexión a Base de Datos - iPlanner</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             box-sizing: border-box;
@@ -88,10 +87,6 @@
             font-weight: 500;
             cursor: pointer;
             transition: background 0.3s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
         }
         
         .btn:hover {
@@ -104,9 +99,7 @@
             padding: 12px;
             border-radius: 5px;
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: none;
         }
         
         .success-message {
@@ -115,9 +108,7 @@
             padding: 12px;
             border-radius: 5px;
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: none;
         }
         
         .info {
@@ -132,7 +123,6 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 20px;
-            padding-top: 20px;
         }
         
         .app-icon {
@@ -145,32 +135,6 @@
             font-size: 24px;
             font-weight: 700;
             color: #2c3e50;
-        }
-        
-        .pre-filled-note {
-            background: #e8f4fc;
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .connection-status {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        
-        .status-connected {
-            color: #27ae60;
-        }
-        
-        .status-error {
-            color: #e74c3c;
         }
     </style>
 </head>
@@ -187,17 +151,12 @@
         </div>
         
         <div class="form-container">
-            <div class="pre-filled-note">
-                <i class="fas fa-info-circle"></i>
-                <span>Los campos ya están completos con tus datos de Railway</span>
-            </div>
-            
-            <div id="error-message" class="error-message" style="display: none;">
+            <div id="error-message" class="error-message">
                 <i class="fas fa-exclamation-circle"></i> 
                 <span id="error-text"></span>
             </div>
             
-            <div id="success-message" class="success-message" style="display: none;">
+            <div id="success-message" class="success-message">
                 <i class="fas fa-check-circle"></i> 
                 <span id="success-text"></span>
             </div>
@@ -206,31 +165,31 @@
                 <div class="form-group">
                     <label for="server_name">Servidor:</label>
                     <input type="text" id="server_name" name="server_name" required 
-                           value="hopper.proxy.rlwy.net" placeholder="Ej: localhost o dirección IP">
+                           placeholder="Ej: localhost o dirección IP">
                 </div>
                 
                 <div class="form-group">
                     <label for="server_port">Puerto:</label>
                     <input type="number" id="server_port" name="server_port" required 
-                           value="48142" placeholder="Ej: 3306">
+                           value="3306" placeholder="Ej: 3306">
                 </div>
 
                 <div class="form-group">
                     <label for="user_name">Usuario:</label>
                     <input type="text" id="user_name" name="user_name" required 
-                           value="root" placeholder="Usuario de la base de datos">
+                           placeholder="Usuario de la base de datos">
                 </div>
 
                 <div class="form-group">
                     <label for="password">Contraseña:</label>
                     <input type="password" id="password" name="password" 
-                           value="bAXbctkLKIfxpHxwyrLfSNzbjEjhiovY" placeholder="Contraseña (si existe)">
+                           placeholder="Contraseña (si existe)">
                 </div>
 
                 <div class="form-group">
                     <label for="db_name">Base de Datos:</label>
                     <input type="text" id="db_name" name="db_name" required 
-                           value="railway" placeholder="Nombre de la base de datos">
+                           placeholder="Nombre de la base de datos">
                 </div>
 
                 <button type="submit" class="btn">
@@ -238,16 +197,13 @@
                 </button>
             </form>
             
-            <div class="connection-status">
-                <span id="status-text"></span>
-            </div>
-            
             <div class="info">
-                <p>Estos son los datos de conexión proporcionados por Railway</p>
+                <p>Si no tienes una base de datos, crea una llamada "budgetmaster" en tu servidor MySQL</p>
             </div>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('connection-form');
@@ -255,14 +211,14 @@
             const errorText = document.getElementById('error-text');
             const successMessage = document.getElementById('success-message');
             const successText = document.getElementById('success-text');
-            const statusText = document.getElementById('status-text');
             
             // Verificar si hay parámetros de error en la URL
             const urlParams = new URLSearchParams(window.location.search);
             const error = urlParams.get('error');
             
             if (error) {
-                showError(decodeURIComponent(error));
+                errorText.textContent = decodeURIComponent(error);
+                errorMessage.style.display = 'block';
             }
             
             // Manejar envío del formulario
@@ -285,36 +241,52 @@
                 }
                 
                 // Mostrar estado de conexión
-                showSuccess('Conectando a Railway...');
-                statusText.textContent = "Conectando...";
-                statusText.className = "";
+                showSuccess('Conectando...');
                 
-                // Simular conexión exitosa (en un caso real, aquí harías una llamada a tu API)
-                setTimeout(() => {
-                    // En un entorno real, aquí verificarías la conexión con tu backend
-                    // Pero para este ejemplo, simularemos una conexión exitosa
-                    showSuccess('¡Conexión exitosa! Redirigiendo...');
-                    statusText.textContent = "Conexión establecida con Railway";
-                    statusText.className = "status-connected";
-                    
-                    // Redirigir después de 2 segundos
-                    setTimeout(() => {
-                        window.location.href = 'iplanner-catalogos.html';
-                    }, 2000);
-                }, 1500);
+                // Enviar datos al servidor usando fetch
+                fetch('connect.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(formData)
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        // Si hay redirección, seguirla
+                        window.location.href = response.url;
+                    } else {
+                        return response.text();
+                    }
+                })
+                .then(data => {
+                    if (data) {
+                        // Si hay datos en la respuesta, verificar si es un error
+                        if (data.includes('Error') || data.includes('error')) {
+                            showError(data);
+                        } else {
+                            showSuccess(data);
+                            // Redirigir después de 2 segundos
+                            setTimeout(() => {
+                                window.location.href = 'iplanner-catalogos.html';
+                            }, 2000);
+                        }
+                    }
+                })
+                .catch(error => {
+                    showError('Error de conexión: ' + error.message);
+                });
             });
             
             function showError(message) {
                 errorText.textContent = message;
-                errorMessage.style.display = 'flex';
+                errorMessage.style.display = 'block';
                 successMessage.style.display = 'none';
-                statusText.textContent = "Error de conexión";
-                statusText.className = "status-error";
             }
             
             function showSuccess(message) {
                 successText.textContent = message;
-                successMessage.style.display = 'flex';
+                successMessage.style.display = 'block';
                 errorMessage.style.display = 'none';
             }
         });
